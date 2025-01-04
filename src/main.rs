@@ -57,7 +57,7 @@ async fn get_stats(cli: &cli::Cli, sketchybar: &Sketchybar) -> Result<()> {
             commands.push(get_cpu_stats(&system, &cli::all_cpu_flags()).join(""));
             commands.push(get_disk_stats(&disks, &cli::all_disk_flags()).join(""));
             commands.push(get_memory_stats(&system, &cli::all_memory_flags()).join(""));
-            commands.push(get_network_stats(&networks, None, cli.interval).join(""));
+            commands.push(get_network_stats(&networks, cli.interval));
             commands.push(format!("UPTIME=\"{} mins\" ", System::uptime() / 60));
         } else {
             if let Some(cpu_flags) = &cpu_flags {
@@ -74,7 +74,7 @@ async fn get_stats(cli: &cli::Cli, sketchybar: &Sketchybar) -> Result<()> {
 
             if let Some(network_flags) = &network_flags {
                 commands
-                    .push(get_network_stats(&networks, Some(network_flags), cli.interval).join(""));
+                    .push(get_network_stats(&networks, cli.interval));
             }
 
             // Get system stat that changes within the main loop

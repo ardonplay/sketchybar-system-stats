@@ -2,29 +2,19 @@ use sysinfo::Networks;
 
 pub fn get_network_stats(
     n: &Networks,
-    interfaces: Option<&[String]>,
     interval: u32,
-) -> Vec<String> {
-    let mut result = Vec::new();
+) -> String {
+    let mut total_received: u64 = 0;
+    let mut total_transmitted: u64 = 0;
 
-    let interfaces_to_check: Vec<&str> = match interfaces {
-        Some(ifaces) => ifaces.iter().map(String::as_str).collect(),
-        None => n
-            .iter()
-            .map(|(interface_name, _)| interface_name.as_str())
-            .collect(),
-    };
-
-    for interface in interfaces_to_check {
-        if let Some(data) = n.get(interface) {
-            result.push(format!(
-                "NETWORK_RX_{}=\"{}KB/s\" NETWORK_TX_{}=\"{}KB/s\" ",
-                interface,
-                (data.received() / 1024) / interval as u64,
-                interface,
-                (data.transmitted() / 1024) / interval as u64
-            ));
-        }
+    for (_, data) in n.iter() {
+        total_received += data.received();
+        total_transmitted += data.transmitted();
     }
-    result
+
+    format!(
+        "NETWORK_RX=\"{}KB/s\" NETWORK_TX=\"{}KB/s\" ",
+        (total_received / 1024) / interval as u64,
+        (total_transmitted / 1024) / interval as u64
+    )
 }
